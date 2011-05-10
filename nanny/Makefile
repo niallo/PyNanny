@@ -1,8 +1,7 @@
-CFLAGS= -g -Wall -O2
+CFLAGS= -g -Wall -O2 -fPIC
 LDFLAGS= -g -Wall
 
-OBJS =	nanny_main.o	\
-	nanny_children.o	\
+OBJS =	nanny_children.o	\
 	nanny_core.o		\
 	nanny_counter.o		\
 	nanny_http_server.o	\
@@ -28,8 +27,11 @@ clean:
 	-rm -f nanny wont
 	-cd test && make clean
 
-nanny: ${OBJS}
+nanny: nanny_main.o ${OBJS}
 	gcc ${LDFLAGS} -o nanny ${OBJS}
+
+nanny_so: ${OBJS}
+	gcc -fPIC ${LDFLAGS} -shared -o libnanny.so ${OBJS}
 
 nanny_core.o: nanny_core.c nanny.h
 
