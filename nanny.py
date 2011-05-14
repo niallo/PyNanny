@@ -10,9 +10,9 @@ NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void_p, c_long)
 class NANNY_TIMER(Structure):
 
     _fields_ = [("when", c_long),
-                 ("data", c_void_p),
-                 ("f", POINTER(NANNY_TIMER_CB))
-                 ]
+                ("data", c_void_p),
+                ("f", POINTER(NANNY_TIMER_CB))
+               ]
 
 # XXX is there a way around this hack for circular definition?
 class NANNY_TIMED_T(Structure):
