@@ -33,6 +33,10 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 
+#if defined(__APPLE__)
+#define environ (*_NSGetEnviron())
+#endif
+
 /* Push the current process into the background; save PID to pidfile. */
 void nanny_daemonize(const char *pidfile);
 
