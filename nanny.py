@@ -8,23 +8,16 @@ NANNY_TIMER_CB = CFUNCTYPE(c_void_p, c_long)
 NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void_p, c_long)
 
 class NANNY_TIMER(Structure):
-
     _fields_ = [("when", c_long),
                 ("data", c_void_p),
                 ("f", POINTER(NANNY_TIMER_CB))
                ]
 
-# XXX is there a way around this hack for circular definition?
 class NANNY_TIMED_T(Structure):
     pass
 
-class NANNY_CHILD(Structure):
-    pass
-
-NANNY_CHILD_ENDED = CFUNCTYPE(c_void_p, c_int, c_void_p)
-
-class NANNY_TIMED_T(Structure):
-    _fields_ = [("next", POINTER(NANNY_TIMED_T)),
+# See http://docs.python.org/library/ctypes.html#incomplete-types
+NANNY_TIMED_T._fields_ = [("next", POINTER(NANNY_TIMED_T)),
                 ("timer", POINTER(NANNY_TIMER)),
                 ("interval", c_long),
                 ("last", c_long),
@@ -33,24 +26,6 @@ class NANNY_TIMED_T(Structure):
                 ("envp", POINTER(c_char_p))
                 ]
 
-class NANNY_LOG(Structure):
-
-    _fields_ = [("refcnt", c_int),
-                ("filename_base", c_char_p),
-                ("filname", c_char_p),
-                ("file_fd", c_int),
-                ("last_rotate", c_long),
-                ("last_rotate_bytes", c_ulonglong),
-                ("last_rotate_check", c_long),
-                ("total_bytes", c_ulonglong),
-                ("read_count", c_ulonglong),
-                ("error_count", c_ulonglong),
-                ("bytes_per_second", c_float),
-                ("bps_last_update_time", c_long),
-                ("buff", c_char_p),
-                ("buff_size", c_ulong),
-                ("buff_end", c_char_p),
-                ("buffp", c_char_p)]
 
 class NANNY_CHILD(Structure):
     """ Python object wrapper for C struct nanny_child (nanny/nanny.h)
@@ -62,8 +37,11 @@ class NANNY_CHILD(Structure):
          (such as stop scripts) just get started and abandoned and so don't
          get an entry here.  Maybe that should change....
     """
+    pass
 
-    _fields_ = [("older", POINTER(NANNY_CHILD)),
+NANNY_CHILD_ENDED = CFUNCTYPE(POINTER(NANNY_CHILD), c_int, c_void_p)
+
+NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
                 ("younger", POINTER(NANNY_CHILD)),
                 ("instance", c_char_p),
                 ("start_cmd", c_char_p),
@@ -95,7 +73,25 @@ class NANNY_CHILD(Structure):
                 ("envp", POINTER(c_char_p))
                 ]
 
-NANNY_CHILD_ENDED = CFUNCTYPE(POINTER(NANNY_CHILD), c_int, c_void_p)
+
+class NANNY_LOG(Structure):
+
+    _fields_ = [("refcnt", c_int),
+                ("filename_base", c_char_p),
+                ("filname", c_char_p),
+                ("file_fd", c_int),
+                ("last_rotate", c_long),
+                ("last_rotate_bytes", c_ulonglong),
+                ("last_rotate_check", c_long),
+                ("total_bytes", c_ulonglong),
+                ("read_count", c_ulonglong),
+                ("error_count", c_ulonglong),
+                ("bytes_per_second", c_float),
+                ("bps_last_update_time", c_long),
+                ("buff", c_char_p),
+                ("buff_size", c_ulong),
+                ("buff_end", c_char_p),
+                ("buffp", c_char_p)]
 
 class Nanny(object):
     def __init__(self):
