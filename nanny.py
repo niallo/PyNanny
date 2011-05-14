@@ -1,22 +1,11 @@
-import argparser
+import argparse
 
 from ctypes import *
 
-NANNY_CHILD_ENDED = CFUNCTYPE(POINTER(NannyChild), c_int, c_void_p)
 
 NANNY_TIMER_CB = CFUNCTYPE(c_void_p, c_long)
 
 NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void_p, c_long)
-
-class NANNY_TIMED(Structure):
-    _fields_ = [("next", POINTER(NANNY_TIMED)),
-                ("timer", POINTER(NANNY_TIMER)),
-                ("interval", c_long),
-                ("last", c_long),
-                ("cmd", c_char_p),
-                ("envplen", c_int),
-                ("envp", POINTER(c_char_p))
-                ]
 
 class NANNY_TIMER(Structure):
 
@@ -24,6 +13,25 @@ class NANNY_TIMER(Structure):
                  ("data", c_void_p),
                  ("f", POINTER(NANNY_TIMER_CB))
                  ]
+
+# XXX is there a way around this hack for circular definition?
+class NANNY_TIMED_T(Structure):
+    pass
+
+class NANNY_CHILD(Structure):
+    pass
+
+NANNY_CHILD_ENDED = CFUNCTYPE(c_void_p, c_int, c_void_p)
+
+class NANNY_TIMED_T(Structure):
+    _fields_ = [("next", POINTER(NANNY_TIMED_T)),
+                ("timer", POINTER(NANNY_TIMER)),
+                ("interval", c_long),
+                ("last", c_long),
+                ("cmd", c_char_p),
+                ("envplen", c_int),
+                ("envp", POINTER(c_char_p))
+                ]
 
 class NANNY_LOG(Structure):
 
@@ -58,7 +66,7 @@ class NANNY_CHILD(Structure):
     _fields_ = [("older", POINTER(NANNY_CHILD)),
                 ("younger", POINTER(NANNY_CHILD)),
                 ("instance", c_char_p),
-                ("start_cmd", c_char_p).
+                ("start_cmd", c_char_p),
                 ("stop_cmd", c_char_p),
                 ("health_cmd", c_char_p),
                 ("restartable", c_bool),
@@ -77,16 +85,17 @@ class NANNY_CHILD(Structure):
                 ("timed", POINTER(NANNY_TIMED_T)),
                 ("main", POINTER(NANNY_CHILD)),
                 ("health_timer", POINTER(NANNY_TIMER)),
-                ("health_failures_consecutive", c_int).
+                ("health_failures_consecutive", c_int),
                 ("health_failures_total", c_int),
                 ("health_successes_consecutive", c_int),
                 ("health_successes_total", c_int),
                 ("child_stderr", POINTER(NANNY_LOG)),
                 ("child_stdout", POINTER(NANNY_LOG)),
                 ("child_events", POINTER(NANNY_LOG)),
-                ("envp", POINTER(char_p))
+                ("envp", POINTER(c_char_p))
                 ]
 
+NANNY_CHILD_ENDED = CFUNCTYPE(POINTER(NANNY_CHILD), c_int, c_void_p)
 
 class Nanny(object):
     def __init__(self):
