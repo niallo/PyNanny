@@ -7,6 +7,26 @@ NANNY_TIMER_CB = CFUNCTYPE(c_void_p, c_long)
 
 NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void_p, c_long)
 
+class NANNY_LOG(Structure):
+
+    _fields_ = [("refcnt", c_int),
+                ("filename_base", c_char_p),
+                ("filname", c_char_p),
+                ("file_fd", c_int),
+                ("last_rotate", c_long),
+                ("last_rotate_bytes", c_ulonglong),
+                ("last_rotate_check", c_long),
+                ("total_bytes", c_ulonglong),
+                ("read_count", c_ulonglong),
+                ("error_count", c_ulonglong),
+                ("bytes_per_second", c_float),
+                ("bps_last_update_time", c_long),
+                ("buff", c_char_p),
+                ("buff_size", c_ulong),
+                ("buff_end", c_char_p),
+                ("buffp", c_char_p)]
+
+
 class NANNY_TIMER(Structure):
     _fields_ = [("when", c_long),
                 ("data", c_void_p),
@@ -74,25 +94,6 @@ NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
                 ]
 
 
-class NANNY_LOG(Structure):
-
-    _fields_ = [("refcnt", c_int),
-                ("filename_base", c_char_p),
-                ("filname", c_char_p),
-                ("file_fd", c_int),
-                ("last_rotate", c_long),
-                ("last_rotate_bytes", c_ulonglong),
-                ("last_rotate_check", c_long),
-                ("total_bytes", c_ulonglong),
-                ("read_count", c_ulonglong),
-                ("error_count", c_ulonglong),
-                ("bytes_per_second", c_float),
-                ("bps_last_update_time", c_long),
-                ("buff", c_char_p),
-                ("buff_size", c_ulong),
-                ("buff_end", c_char_p),
-                ("buffp", c_char_p)]
-
 class Nanny(object):
     def __init__(self):
         pass
@@ -102,6 +103,8 @@ class NannyChild(object):
         pass
 
 def main():
+
+    nanny_so = CDLL("nanny/libnanny.so")
     parser = argparse.ArgumentParser(
         description='Nanny Demonstration'
         )
