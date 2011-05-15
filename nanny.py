@@ -7,6 +7,17 @@ NANNY_TIMER_CB = CFUNCTYPE(c_void_p, c_long)
 
 NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void_p, c_long)
 
+class NANNY_GLOBALS(Structure):
+    _fields_ = [("now", c_long),
+                ("http_port", c_int),
+                ("udp_inicast_socket", c_int),
+                ("udp_multicast_addr", c_void_p),
+                ("sigchld_count", c_int),
+                ("sigchld_handled", c_int),
+                ("nanny_pid", c_int),
+                ("child_pid", c_int)
+                ]
+
 class NANNY_LOG(Structure):
 
     _fields_ = [("refcnt", c_int),
@@ -98,8 +109,11 @@ NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
 class Nanny(object):
     nanny_so = CDLL("nanny/libnanny.so")
 
+
     def __init__(self):
         self.children = []
+        ng = NANNY_GLOBALS
+        self.globals = ng.in_dll(self.nanny_so, "nanny_globals")
 
     def __getattribute__(self, name):
         """ Method proxy. Dynamically support all nanny_foo* functions. """
