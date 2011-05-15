@@ -102,7 +102,7 @@ class Nanny(object):
         self.children = []
 
     def __getattribute__(self, name):
-        """ Dynamically support all nanny_foo* functions """
+        """ Method proxy. Dynamically support all nanny_foo* functions. """
         # Check whether we have a Python method of that name
         try:
             m = super(Nanny, self).__getattribute__(name)
@@ -117,11 +117,9 @@ class Nanny(object):
                     lib = super(Nanny, self).__getattribute__("nanny_so")
                     f = getattr(lib, name)
                     return f
-            return False
+            raise AttributeError()
 
         f = check_method_name(name)
-        if not f:
-            raise AttributeError()
 
         return f
 
