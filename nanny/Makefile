@@ -13,7 +13,7 @@ OBJS =	nanny_children.o	\
 	strlcpy.o		\
 	strlcat.o
 
-all: nanny
+all: nanny_so
 	-cd test && make
 
 .PHONY: all clean check
