@@ -24,7 +24,8 @@ class NANNY_LOG(Structure):
                 ("buff", c_char_p),
                 ("buff_size", c_ulong),
                 ("buff_end", c_char_p),
-                ("buffp", c_char_p)]
+                ("buffp", c_char_p)
+                ]
 
 
 class NANNY_TIMER(Structure):
@@ -95,16 +96,73 @@ NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
 
 
 class Nanny(object):
+    nanny_so = CDLL("nanny/libnanny.so")
+
     def __init__(self):
-        pass
+        self.children = []
+
+    def __getattribute__(self, name):
+        """ Dynamically support all nanny_foo* functions """
+        # Check whether we have a Python method of that name
+        try:
+            m = super(Nanny, self).__getattribute__(name)
+            return m
+        except AttributeError:
+            pass
+
+        def check_method_name(name):
+            valid_prefixes = ("nanny", "udp", "http")
+            for p in valid_prefixes:
+                if name.startswith(p):
+                    lib = super(Nanny, self).__getattribute__("nanny_so")
+                    f = getattr(lib, name)
+                    return f
+            return False
+
+        f = check_method_name(name)
+        if not f:
+            raise AttributeError()
+
+        return f
+
+    def create_child(self, start):
+        child_new = self.nanny_so.nanny_child_new
+        child_new.restype = POINTER(NANNY_CHILD)
+
+        child_struct = child_new(start)
+        child = NannyChild(self.nanny_so, child_struct)
+        self.children.append(child)
+        return child
+
+    def main_loop(self):
+      self.udp_server_init("226.1.1.1.1", 8889)
+      self.udp_server_init(None, -1)
 
 class NannyChild(object):
-    def __init__(self):
-        pass
+
+    def __init__(self, nanny_so, child_struct):
+        self._nanny_so = nanny_so
+        self._child_struct = child_struct
+        self._as_parameter_ = child_struct
+
+    def set_health(self, health_cmd):
+        self._nanny_so.nanny_child_set_health(self._child_struct, health_cmd)
+
+    def set_stop(self, stop_cmd):
+        self._nanny_so.nanny_child_set_stop(self._child_struct, stop_cmd)
+
+    def set_restartable(self, restartable):
+        self._nanny_so.nanny_child_set_restartable(self._child_struct,
+                restartable)
+
+    def add_periodic(self, periodic):
+        self._nanny_so.nanny_child_add_periodic(self._child_struct, periodic)
+
+    def set_logpath(self, logpath):
+        self._nanny_so.nanny_child_set_logpath(self._child_struct, logpath)
 
 def main():
 
-    nanny_so = CDLL("nanny/libnanny.so")
     parser = argparse.ArgumentParser(
         description='Nanny Demonstration'
         )
