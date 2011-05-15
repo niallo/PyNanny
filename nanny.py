@@ -110,6 +110,39 @@ NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
                 ("envp", POINTER(c_char_p))
                 ]
 
+class NANNY_HTTP_CONNECTION(Structure):
+    _fields_ = [("sock", c_int),
+                ("keepalive", c_int),
+                ("buff", c_char_p),
+                ("buff_end", c_char_p),
+                ("buff_size", c_uint),
+                ("start", c_char_p),
+                ("end", c_char_p)
+               ]
+
+class NANNY_HTTP_REQUEST(Structure):
+    pass
+
+NANNY_HTTP_HEADER_PROCESSOR = CFUNCTYPE(POINTER(NANNY_HTTP_REQUEST), c_char_p,
+        c_char_p)
+NANNY_HTTP_BODY_PROCESSOR = CFUNCTYPE(POINTER(NANNY_HTTP_REQUEST))
+
+NANNY_HTTP_REQUEST._fields_ = [
+            ("connection", POINTER(NANNY_HTTP_CONNECTION)),
+            ("uri", c_char_p),
+            ("method", c_int),
+            ("method_name", c_char_p),
+            ("HTTPmajor", c_int),
+            ("HTTPminor", c_int),
+            ("header_processor", POINTER(NANNY_HTTP_HEADER_PROCESSOR)),
+            ("body_processor", POINTER(NANNY_HTTP_BODY_PROCESSOR)),
+            ("data", c_void_p)
+]
+
+HTTP_METHOD_GET = 1
+HTTP_METHOD_PUT = 2
+HTTP_METHOD_POST = 3
+
 
 class Nanny(object):
     nanny_so = CDLL("nanny/libnanny.so")
