@@ -103,14 +103,14 @@ class Nanny(object):
 
     def __getattribute__(self, name):
         """ Method proxy. Dynamically support all nanny_foo* functions. """
-        # Check whether we have a Python method of that name
-        try:
-            m = super(Nanny, self).__getattribute__(name)
-            return m
-        except AttributeError:
-            pass
 
-        def check_method_name(name):
+        def proxy_method_name(name):
+            # Check whether we have a Python method of that name
+            try:
+                m = super(Nanny, self).__getattribute__(name)
+                return m
+            except AttributeError:
+                pass
             valid_prefixes = ("nanny", "udp", "http")
             for p in valid_prefixes:
                 if name.startswith(p):
@@ -119,9 +119,7 @@ class Nanny(object):
                     return f
             raise AttributeError()
 
-        f = check_method_name(name)
-
-        return f
+        return proxy_method_name(name)
 
     def create_child(self, start):
         child_new = self.nanny_so.nanny_child_new
