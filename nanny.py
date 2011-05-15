@@ -3,9 +3,9 @@ import argparse
 from ctypes import *
 
 
-NANNY_TIMER_CB = CFUNCTYPE(c_void_p, c_long)
+NANNY_TIMER_CB = CFUNCTYPE(c_void, c_void_p, c_long)
 
-NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void_p, c_long)
+NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void, c_void_p, c_long)
 
 class TIMEVAL(Structure):
     _fields_ = [("tv_sec", c_uint),
@@ -76,7 +76,7 @@ class NANNY_CHILD(Structure):
     """
     pass
 
-NANNY_CHILD_ENDED = CFUNCTYPE(POINTER(NANNY_CHILD), c_int, c_void_p)
+NANNY_CHILD_ENDED = CFUNCTYPE(c_void, POINTER(NANNY_CHILD), c_int, c_void_p)
 
 NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
                 ("younger", POINTER(NANNY_CHILD)),
@@ -123,9 +123,9 @@ class NANNY_HTTP_CONNECTION(Structure):
 class NANNY_HTTP_REQUEST(Structure):
     pass
 
-NANNY_HTTP_HEADER_PROCESSOR = CFUNCTYPE(POINTER(NANNY_HTTP_REQUEST), c_char_p,
-        c_char_p)
-NANNY_HTTP_BODY_PROCESSOR = CFUNCTYPE(POINTER(NANNY_HTTP_REQUEST))
+NANNY_HTTP_HEADER_PROCESSOR = CFUNCTYPE(c_int, POINTER(NANNY_HTTP_REQUEST),
+        c_char_p, c_char_p)
+NANNY_HTTP_BODY_PROCESSOR = CFUNCTYPE(c_int, POINTER(NANNY_HTTP_REQUEST))
 
 NANNY_HTTP_REQUEST._fields_ = [
             ("connection", POINTER(NANNY_HTTP_CONNECTION)),
