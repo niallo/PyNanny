@@ -7,6 +7,11 @@ NANNY_TIMER_CB = CFUNCTYPE(c_void_p, c_long)
 
 NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void_p, c_long)
 
+class TIMEVAL(Structure):
+    _fields_ = [("tv_sec", c_uint),
+                ("tv_usec", c_uint)
+               ]
+
 class NANNY_GLOBALS(Structure):
     _fields_ = [("now", c_long),
                 ("http_port", c_int),
