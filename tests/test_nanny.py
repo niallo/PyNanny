@@ -15,7 +15,7 @@ def test_nanny_dynamic_calling():
 
 
 def test_nanny_create_child():
-    """ Test Nanny child creation """
+    """ Test Nanny child creation and execution of a process """
     n = Nanny()
     n.globals.nanny_pid = os.getpid()
     global running
