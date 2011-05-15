@@ -149,10 +149,6 @@ class Nanny(object):
         self.children.append(child)
         return child
 
-    def main_loop(self):
-      self.udp_server_init("226.1.1.1.1", 8889)
-      self.udp_server_init(None, -1)
-
 class NannyChild(object):
 
     def __init__(self, nanny_so, child_struct):
