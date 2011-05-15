@@ -3,9 +3,9 @@ import argparse
 from ctypes import *
 
 
-NANNY_TIMER_CB = CFUNCTYPE(c_void, c_void_p, c_long)
+NANNY_TIMER_CB = CFUNCTYPE(None, c_void_p, c_long)
 
-NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(c_void, c_void_p, c_long)
+NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(None, c_void_p, c_long)
 
 class TIMEVAL(Structure):
     _fields_ = [("tv_sec", c_uint),
@@ -47,7 +47,7 @@ class NANNY_LOG(Structure):
 class NANNY_TIMER(Structure):
     _fields_ = [("when", c_long),
                 ("data", c_void_p),
-                ("f", POINTER(NANNY_TIMER_CB))
+                ("f", NANNY_TIMER_CB)
                ]
 
 class NANNY_TIMED_T(Structure):
@@ -76,7 +76,7 @@ class NANNY_CHILD(Structure):
     """
     pass
 
-NANNY_CHILD_ENDED = CFUNCTYPE(c_void, POINTER(NANNY_CHILD), c_int, c_void_p)
+NANNY_CHILD_ENDED = CFUNCTYPE(None, POINTER(NANNY_CHILD), c_int, c_void_p)
 
 NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
                 ("younger", POINTER(NANNY_CHILD)),
@@ -93,8 +93,8 @@ NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
                 ("start_count", c_int),
                 ("failures", c_int),
                 ("restart_delay", c_int),
-                ("ended", POINTER(NANNY_CHILD_ENDED)),
-                ("state_handler", POINTER(NANNY_CHILD_STATE_HANDLER)),
+                ("ended", NANNY_CHILD_ENDED),
+                ("state_handler", NANNY_CHILD_STATE_HANDLER),
                 ("state_timer", POINTER(NANNY_TIMER)),
                 ("state", c_char_p),
                 ("timed", POINTER(NANNY_TIMED_T)),
@@ -127,6 +127,7 @@ NANNY_HTTP_HEADER_PROCESSOR = CFUNCTYPE(c_int, POINTER(NANNY_HTTP_REQUEST),
         c_char_p, c_char_p)
 NANNY_HTTP_BODY_PROCESSOR = CFUNCTYPE(c_int, POINTER(NANNY_HTTP_REQUEST))
 
+
 NANNY_HTTP_REQUEST._fields_ = [
             ("connection", POINTER(NANNY_HTTP_CONNECTION)),
             ("uri", c_char_p),
@@ -134,10 +135,13 @@ NANNY_HTTP_REQUEST._fields_ = [
             ("method_name", c_char_p),
             ("HTTPmajor", c_int),
             ("HTTPminor", c_int),
-            ("header_processor", POINTER(NANNY_HTTP_HEADER_PROCESSOR)),
-            ("body_processor", POINTER(NANNY_HTTP_BODY_PROCESSOR)),
+            ("header_processor", NANNY_HTTP_HEADER_PROCESSOR),
+            ("body_processor", NANNY_HTTP_BODY_PROCESSOR),
             ("data", c_void_p)
 ]
+
+NANNY_HTTP_DISPATCHER = CFUNCTYPE(None, POINTER(NANNY_HTTP_REQUEST))
+
 
 HTTP_METHOD_GET = 1
 HTTP_METHOD_PUT = 2
