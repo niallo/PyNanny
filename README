@@ -1,5 +1,5 @@
 PyNanny is a process management framework. It has a mini HTTP server for
-exposing statistics and settings. It is useful for:
+exposing statistics, logs and settings. It is useful for:
 
 - Auto-daemonization.
 - Logging.
