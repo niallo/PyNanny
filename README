@@ -6,7 +6,7 @@ exposing statistics, logs and settings. It is useful for:
 - Statistics gathering.
 - Automatically restarting processes when they crash or fail a health check.
   Extrmely useful when you have production processes which are known to need
-  restarts (e.g. due to bugs or JVM crashes)
+  restarts (e.g. due to bugs, JVM/interpreter crashes, etc).
 - Configuration of child environments.
 - Management of *groups* of processes - a single nanny process can monitor as
   many children as you like. This is very usefull if you have e.g. multiple
