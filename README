@@ -2,7 +2,13 @@ PyNanny is a process management framework. It has a mini HTTP server for
 exposing statistics, logs and settings. It is useful for:
 
 - Auto-daemonization.
-- Logging.
+- Periodic operations. Like cron, but per-application. Cron doesn't have access
+  to your application's environment, nor is it aware of whether your process is
+  running. Many real-world production periodic operations should only run when
+  their application is running.
+- Logging. STDOUT, STDERR are harvested by default - to rotated on-disk files
+  and in-memory buffers accessible via the HTTP interface. Events such as
+  health check failures, restarts and periodic operations are also logged.
 - Statistics gathering.
 - Automatically restarting processes when they crash or fail a health check.
   Extrmely useful when you have production processes which are known to need
