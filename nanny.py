@@ -154,8 +154,7 @@ class Nanny(object):
 
     def __init__(self):
         self.children = []
-        ng = NANNY_GLOBALS
-        self.globals = ng.in_dll(self.nanny_so, "nanny_globals")
+        self.globals = NANNY_GLOBALS.in_dll(self.nanny_so, "nanny_globals")
 
     def __getattribute__(self, name):
         """ Method proxy. Dynamically support all nanny_foo* functions. """
