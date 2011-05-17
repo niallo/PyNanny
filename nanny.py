@@ -8,8 +8,12 @@ import argparse
 from ctypes import *
 
 
+# void (*f)(void *, time_t);
 NANNY_TIMER_CB = CFUNCTYPE(None, c_void_p, c_long)
 
+# Timer and handler function for driving state transitions.
+# This drives state machines for startup, shutdown, etc.
+# void (*state_handler)(void *_child, time_t now);
 NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(None, c_void_p, c_long)
 
 class TIMEVAL(Structure):
@@ -88,6 +92,8 @@ class NANNY_CHILD(Structure):
     """
     pass
 
+# How to handle this child when it stops.
+# void (*ended)(struct nanny_child *, int stat, struct rusage *);
 NANNY_CHILD_ENDED = CFUNCTYPE(None, POINTER(NANNY_CHILD), c_int, c_void_p)
 
 NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
@@ -140,8 +146,14 @@ class NANNY_HTTP_REQUEST(Structure):
     response headers) along with containing the URI, method, etc. """
     pass
 
+# Called for each header in the HTTP request.  If not set,
+# headers are discarded. */
+# int (*header_processor)(struct http_request *, const char *key, const char *value);
 NANNY_HTTP_HEADER_PROCESSOR = CFUNCTYPE(c_int, POINTER(NANNY_HTTP_REQUEST),
         c_char_p, c_char_p)
+
+# Called after all headers are read.
+# int (*body_processor)(struct http_request *);
 NANNY_HTTP_BODY_PROCESSOR = CFUNCTYPE(c_int, POINTER(NANNY_HTTP_REQUEST))
 
 
@@ -157,6 +169,9 @@ NANNY_HTTP_REQUEST._fields_ = [
             ("data", c_void_p)
 ]
 
+# The dispatch function can choose the request body and environment processors.
+# Essentially does URL routing.
+# void (*dispatcher)(struct http_request *)
 NANNY_HTTP_DISPATCHER = CFUNCTYPE(None, POINTER(NANNY_HTTP_REQUEST))
 
 HTTP_METHOD_GET = 1
