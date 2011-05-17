@@ -1,3 +1,8 @@
+"""
+    Python interface to C Nanny.
+    Copyright 2011 Niall O'Higgins <niallo@unworkable.org>
+"""
+
 import argparse
 
 from ctypes import *
@@ -8,11 +13,14 @@ NANNY_TIMER_CB = CFUNCTYPE(None, c_void_p, c_long)
 NANNY_CHILD_STATE_HANDLER = CFUNCTYPE(None, c_void_p, c_long)
 
 class TIMEVAL(Structure):
+    """ `struct timeval' wrapper (see sys/time.h, gettimeofday(2)) """
     _fields_ = [("tv_sec", c_uint),
                 ("tv_usec", c_uint)
                ]
 
 class NANNY_GLOBALS(Structure):
+    """ `struct nanny_globals_t' wrapper (see nanny.h). Stores a bunch of the
+    Nanny's global variables. """
     _fields_ = [("now", c_long),
                 ("http_port", c_int),
                 ("udp_inicast_socket", c_int),
@@ -24,7 +32,8 @@ class NANNY_GLOBALS(Structure):
                 ]
 
 class NANNY_LOG(Structure):
-
+    """ `struct nanny_log_t' wrapper (see nanny_log.c). Stores properties
+    related to stream loggers (STDOUT, STDERR, events). """
     _fields_ = [("refcnt", c_int),
                 ("filename_base", c_char_p),
                 ("filname", c_char_p),
@@ -45,12 +54,16 @@ class NANNY_LOG(Structure):
 
 
 class NANNY_TIMER(Structure):
+    """ `struct timer' wrapper (see nanny_timer.c).
+    Stores properties related to nanny_timed_t structures. """
     _fields_ = [("when", c_long),
                 ("data", c_void_p),
                 ("f", NANNY_TIMER_CB)
                ]
 
 class NANNY_TIMED_T(Structure):
+    """ `struct timed_t' wrapper (see nanny_children.c).
+    Stores properties related to periodic events. """
     pass
 
 # See http://docs.python.org/library/ctypes.html#incomplete-types
@@ -62,7 +75,6 @@ NANNY_TIMED_T._fields_ = [("next", POINTER(NANNY_TIMED_T)),
                 ("envplen", c_int),
                 ("envp", POINTER(c_char_p))
                 ]
-
 
 class NANNY_CHILD(Structure):
     """ Python object wrapper for C struct nanny_child (nanny/nanny.h)
@@ -111,6 +123,7 @@ NANNY_CHILD._fields_ = [("older", POINTER(NANNY_CHILD)),
                 ]
 
 class NANNY_HTTP_CONNECTION(Structure):
+    """ `struct http_connection' wrapper (see nanny_http_server.c). """
     _fields_ = [("sock", c_int),
                 ("keepalive", c_int),
                 ("buff", c_char_p),
@@ -121,6 +134,10 @@ class NANNY_HTTP_CONNECTION(Structure):
                ]
 
 class NANNY_HTTP_REQUEST(Structure):
+    """ `struct http_request' wrapper (see nanny.h). Has properties like
+    function pointers to the body processor (function which outputs HTTP
+    response body) and header_processor (function which outputs the HTTP
+    response headers) along with containing the URI, method, etc. """
     pass
 
 NANNY_HTTP_HEADER_PROCESSOR = CFUNCTYPE(c_int, POINTER(NANNY_HTTP_REQUEST),
@@ -141,7 +158,6 @@ NANNY_HTTP_REQUEST._fields_ = [
 ]
 
 NANNY_HTTP_DISPATCHER = CFUNCTYPE(None, POINTER(NANNY_HTTP_REQUEST))
-
 
 HTTP_METHOD_GET = 1
 HTTP_METHOD_PUT = 2
