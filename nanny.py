@@ -59,7 +59,7 @@ class NANNY_LOG(Structure):
 
 class NANNY_TIMER(Structure):
     """ `struct timer' wrapper (see nanny_timer.c).
-    Stores properties related to nanny_timed_t structures. """
+    Stores properties related to timed_t structures. """
     _fields_ = [("when", c_long),
                 ("data", c_void_p),
                 ("f", NANNY_TIMER_CB)
