@@ -188,25 +188,74 @@ class Nanny(object):
 class NannyChild(object):
 
     def __init__(self, nanny_so, child_struct):
+        """ Encapsulation of a Nanny child process """
         self._nanny_so = nanny_so
         self._child_struct = child_struct
         self._as_parameter_ = child_struct
 
+    @property
+    def child_stdout:
+        """ STDOUT NANNY_LOG stream for child """
+        return self._child_struct.contents.child_stdout
+
+    @property
+    def child_stderr:
+        """ STDERR NANNY_LOG stream for child """
+        return self._child_struct.contents.child_stdout
+
+    @property
+    def child_events:
+        """ Events NANNY_LOG stream for child """
+        return self._child_struct.contents.child_events
+
+    def set_stdout_log_filename(self, filename):
+        """ Filename nanny should write STDOUT logs from the child to. """
+        self._nanny_so.nanny_log_set_filename(self.child_stdout, filename)
+
+    def set_stderr_log_filename(self, filename):
+        """ Filename nanny should write STDERR logs from the child to. """
+        self._nanny_so.nanny_log_set_filename(self.child_stderr, filename)
+
+    def set_events_log_filename(self, filename):
+        """ Filename nanny should write event (start, stop, health check, etc)
+        logs from the child to. """
+        self._nanny_so.nanny_log_set_filename(self.child_events, filename)
+
     def set_health(self, health_cmd):
+        """ Set the health check command for this child """
         self._nanny_so.nanny_child_set_health(self._child_struct, health_cmd)
 
     def set_stop(self, stop_cmd):
+        """ Set the stop command for this child (default: kill -SIGTERM $CHILD_PID) """
         self._nanny_so.nanny_child_set_stop(self._child_struct, stop_cmd)
 
     def set_restartable(self, restartable):
+        """ Set whether this child should be automatically restarted by the
+        Nanny on exit """
         self._nanny_so.nanny_child_set_restartable(self._child_struct,
                 restartable)
 
     def add_periodic(self, periodic):
+        """ Add a periodic operation for this child. Periodic operations are
+        like cronjobs, but they are run with the same environment as the child
+        and are never run if the child is not running. """
         self._nanny_so.nanny_child_add_periodic(self._child_struct, periodic)
 
     def set_logpath(self, logpath):
+        """ Convenience method instead of setting each stream path individually.
+        Simply supply a base dir to this method and nanny logs named
+        nanny_stdout.log, nanny_stderr.log and nanny_event.log will be written
+        there. See set_{stdout,stderr,events}_log_filename above to set these
+        individually. """
         self._nanny_so.nanny_child_set_logpath(self._child_struct, logpath)
+
+    def set_environmnt(self, environment_array):
+        """ Set the UNIX process environment for this child. Expects a list of
+        strings in the form KEY=VALUE. See execve(2) docs and the char *const
+        envp[] argument for where this comes from..
+        """
+        self._nanny_so.nanny_child_set_envp(self._child_struct,
+                environment_array)
 
 def main():
 
