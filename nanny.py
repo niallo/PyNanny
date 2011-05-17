@@ -81,7 +81,7 @@ NANNY_TIMED_T._fields_ = [("next", POINTER(NANNY_TIMED_T)),
                 ]
 
 class NANNY_CHILD(Structure):
-    """ Python object wrapper for C struct nanny_child (nanny/nanny.h)
+    """ Python object wrapper for C struct nanny_child (nanny.h)
     From the C header definition:
 
          Information about a child process.  This structure handles both
